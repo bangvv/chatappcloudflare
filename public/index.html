@@ -115,6 +115,7 @@
 	border-radius: 8px;
 	background: #f9f9f9;
 	font-size: 14px;
+	scroll-behavior: smooth;
   }
 	#messages .me {
 		color: #003333;
@@ -311,14 +312,28 @@
     status.textContent = "Đã thoát khỏi cuộc trò chuyện";
 	ws.close();
   };
+  
+	window.addEventListener("resize", () => {
+		scrollToBottom();
+	});
 
-  function appendMessage(text, cls) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    div.className = cls;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-  }
+	function appendMessage(text, cls) {
+		const div = document.createElement("div");
+		div.textContent = text;
+		div.className = cls;
+		messages.appendChild(div);
+
+		// Đảm bảo nội dung được render trước khi cuộn
+		requestAnimationFrame(() => {
+		messages.scrollTop = messages.scrollHeight;
+		});
+	}
+	
+	function scrollToBottom() {
+		requestAnimationFrame(() => {
+			messages.scrollTop = messages.scrollHeight;
+		});
+	}
 
   function resetUI() {
     formSection.style.display = "flex";
