@@ -15,10 +15,9 @@
   },
   "durable_objects": {
     "bindings": [
-      {
-        "class_name": "MyDurableObject",
-        "name": "MY_CHAT_ROOM"
-      }
+		{ "name" : "MY_CHAT_ROOM0", "class_name" : "MyDurableObject" },
+		{ "name" : "MY_CHAT_ROOM1", "class_name" : "MyDurableObject" },
+		{ "name" : "MY_CHAT_ROOM2", "class_name" : "MyDurableObject" }
     ]
   },
   "migrations": [

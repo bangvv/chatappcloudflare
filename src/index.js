@@ -19,11 +19,12 @@ export class MyDurableObject extends DurableObject {
 		const name = params.get("name");
 		const age = params.get("age");
 		const gender = params.get("gender");
+		const vitri = params.get("vitri");
 		const lookingFor = params.get("lookingFor");
 		const sessionId = crypto.randomUUID();
 
 		const [client, server] = new WebSocketPair();
-		this.handleSession(server, { sessionId, name, age, gender, lookingFor });
+		this.handleSession(server, { sessionId, name, age, gender, vitri, lookingFor });
 
 		return new Response(null, {
 		  status: 101,
@@ -162,15 +163,31 @@ export class MyDurableObject extends DurableObject {
 // Export Durable Object đúng tên binding trong wrangler.toml
 export default {
   DurableObjects: {
-    MY_CHAT_ROOM: MyDurableObject
+    MY_CHAT_ROOM0: MyDurableObject,
+    MY_CHAT_ROOM1: MyDurableObject,
+    MY_CHAT_ROOM2: MyDurableObject,
   },
 
   async fetch(request, env) {
     const url = new URL(request.url);
-
     if (url.pathname === "/chat") {
-      const id = env.MY_CHAT_ROOM.idFromName("default");
-      const obj = env.MY_CHAT_ROOM.get(id);
+      // Lấy param vitri hoặc param khác để xác định Durable Object nào dùng
+      const vitri = url.searchParams.get("vitri");
+      
+      // Chia theo miền
+      const vitriToBinding = {
+        "mienbac": "MY_CHAT_ROOM0",
+        "mientrung": "MY_CHAT_ROOM1",
+        "miennam": "MY_CHAT_ROOM2",
+      };
+
+      const bindingNameForVitri = vitriToBinding[vitri] || "MY_CHAT_ROOM0"; // default là miền bắc
+      const binding = env[bindingNameForVitri];
+
+      // Lấy id và instance Durable Object tương ứng
+      const id = binding.idFromName(vitri);
+      const obj = binding.get(id);
+
       return obj.fetch(request);
     }
 

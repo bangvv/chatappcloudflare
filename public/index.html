@@ -117,7 +117,7 @@
 	font-size: 14px;
   }
 	#messages .me {
-		color: black;
+		color: #003333;
 		align-self: flex-end;
 		margin-left: auto;
 		text-align: right;
@@ -182,6 +182,14 @@
       <option value="female">Nữ</option>
     </select>
   </label>
+  <label>Vị trí: 
+    <select id="vitri">
+      <option value="">Chọn</option>
+      <option value="mienbac">Bắc</option>
+      <option value="mientrung">Trung</option>
+	  <option value="miennam">Nam</option>
+    </select>
+  </label>
   <label>Muốn tìm: 
     <select id="lookingFor">
       <option value="">Chọn</option>
@@ -221,16 +229,18 @@
     const name = document.getElementById("name").value.trim();
     const age = document.getElementById("age").value.trim();
     const gender = document.getElementById("gender").value;
+	const vitri = document.getElementById("vitri").value;
     const lookingFor = document.getElementById("lookingFor").value;
 
-    if (!name || !age || !gender || !lookingFor) {
+    if (!name || !age || !gender || !lookingFor|| !vitri) {
       alert("Vui lòng nhập đầy đủ thông tin");
       return;
     }
 
-    const url = `${location.origin.replace(/^http/, 'ws')}/chat?name=${encodeURIComponent(name)}&age=${age}&gender=${gender}&lookingFor=${lookingFor}`;
+    const url = `${location.origin.replace(/^http/, 'ws')}/chat?name=${encodeURIComponent(name)}&age=${age}&gender=${gender}&vitri=${vitri}&lookingFor=${lookingFor}`;
     ws = new WebSocket(url);
-
+	console.log("url:",url)
+	
     ws.onopen = () => {
       status.textContent = "Đang tìm bạn chat...";
 	  statusConnect.textContent = "Đang tìm bạn chat...";
@@ -241,7 +251,7 @@
 
 		if (data.event === "matched") {
 			currentRoomId = data.roomId;
-			status.textContent = `Đã ghép nối với ${data.partner.name} (${data.partner.gender})`;
+			status.textContent = `Đã ghép nối với ${data.partner.name}`;
 			formSection.style.display = "none";
 			chatBox.style.display = "flex";
 		}
