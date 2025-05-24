@@ -1,19 +1,324 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
-	</head>
-	<body>
-		<h1 id="heading"></h1>
-		<script>
-			fetch('/message')
-				.then((resp) => resp.text())
-				.then((text) => {
-					const h1 = document.getElementById('heading');
-					h1.textContent = text;
-				});
-		</script>
-	</body>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat App</title>
+  <style>
+		 body, html {
+			height: 100%;
+			margin: 0;
+		  }
+
+		  body {
+			display: flex;
+			justify-content: center; /* căn ngang giữa */
+			align-items: center;     /* căn dọc giữa */
+			background: #f5f5f5;
+		  }
+
+		  #formSection {
+			background: white;
+			padding: 20px 30px;
+			border-radius: 12px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px 20px;
+			max-width: 400px;
+			justify-content: center;
+		  }
+
+		  #formSection label {
+			flex: 1 1 100%; /* mỗi label chiếm một dòng */
+			font-weight: 600;
+			font-size: 16px;
+		  }
+
+		  #formSection input,
+		  #formSection select {
+			width: 100%;
+			padding: 8px 10px;
+			margin-top: 6px;
+			font-size: 16px;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			box-sizing: border-box;
+		  }
+
+		  #connectBtn {
+			flex: 1 1 100%;
+			margin-top: 10px;
+			padding: 12px;
+			font-size: 18px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+		  }
+
+		  #connectBtn:hover {
+			background-color: #0056b3;
+		  }
+
+	#chatWrapper {
+		display: none;
+		justify-content: center; /* căn ngang giữa */
+		align-items: center;     /* căn dọc giữa */
+		width: 100%;
+		height: 100%;
+		max-width: 1200px;
+
+	}
+
+  #chatBox {
+    width: 100%;
+	height: 100%;
+    max-width: 100%;
+    background: white;
+    border-radius: 12px;
+    padding: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+  }
+
+  #topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #status {
+    font-size: 14px;
+    color: #333;
+  }
+
+  #disconnectBtn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  #messages {
+	flex: 1;
+	overflow-y: auto;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: #f9f9f9;
+	font-size: 14px;
+  }
+	#messages .me {
+		color: black;
+		align-self: flex-end;
+		margin-left: auto;
+		text-align: right;
+	}
+
+	#messages .partner {
+		color: black;
+		align-self: flex-start;
+		margin-right: auto;
+		text-align: left;
+	}
+
+	#inputArea {
+	  bottom: 0;
+	  left: 0;
+	  right: 0;
+	  width: 100%;
+	  display: flex;
+	  gap: 10px;
+	  padding: 10px 0px 0px 0px;
+	  background-color: white;
+	  border-top: 1px solid #ccc;
+	  box-sizing: border-box;
+	  /* bỏ margin-top nếu có */
+	  margin-top: 0;
+	}
+
+
+	#msgInput {
+	  flex: 1;
+	  padding: 8px;
+	  font-size: 16px;
+	}
+
+	#sendBtn {
+	  padding: 8px 16px;
+	  font-size: 16px;
+	  background-color: #007bff;
+	  color: white;
+	  border: none;
+	  border-radius: 4px;
+	  cursor: pointer;
+	}
+
+  @media (min-width: 768px) {
+	#chatBox {
+	  max-width: 50%;
+	}
+  }
+  </style>
+</head>
+<body>
+
+<div id="formSection">
+	<h1>Tìm bạn chat</h1>
+  <label>Tên: <input id="name"/></label>
+  <label>Tuổi: <input id="age" type="number"/></label>
+  <label>Giới tính: 
+    <select id="gender">
+      <option value="">Chọn</option>
+      <option value="male">Nam</option>
+      <option value="female">Nữ</option>
+    </select>
+  </label>
+  <label>Muốn tìm: 
+    <select id="lookingFor">
+      <option value="">Chọn</option>
+      <option value="male">Nam</option>
+      <option value="female">Nữ</option>
+    </select>
+  </label>
+  <button id="connectBtn">Kết nối</button>
+  <div id="statusConnect"></div>
+</div>
+
+<div id="chatWrapper">
+  <div id="chatBox">
+    <div id="topBar">
+      <div id="status">Đang kết nối...</div>
+      <button id="disconnectBtn">Thoát</button>
+    </div>
+    <div id="messages"></div>
+		<div id="inputArea">
+			<input id="msgInput" placeholder="Nhập tin nhắn..." />
+			<button id="sendBtn">Gửi</button>
+		</div>
+  </div>
+</div>
+
+<script>
+  let ws;
+  let currentRoomId = null;
+
+  const status = document.getElementById("status");
+  const formSection = document.getElementById("formSection");
+  const chatBox = document.getElementById("chatWrapper");
+  const messages = document.getElementById("messages");
+  const statusConnect = document.getElementById("statusConnect");
+
+  document.getElementById("connectBtn").onclick = () => {
+    const name = document.getElementById("name").value.trim();
+    const age = document.getElementById("age").value.trim();
+    const gender = document.getElementById("gender").value;
+    const lookingFor = document.getElementById("lookingFor").value;
+
+    if (!name || !age || !gender || !lookingFor) {
+      alert("Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+
+    const url = `${location.origin.replace(/^http/, 'ws')}/chat?name=${encodeURIComponent(name)}&age=${age}&gender=${gender}&lookingFor=${lookingFor}`;
+    ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      status.textContent = "Đang tìm bạn chat...";
+	  statusConnect.textContent = "Đang tìm bạn chat...";
+    };
+
+    ws.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+
+		if (data.event === "matched") {
+			currentRoomId = data.roomId;
+			status.textContent = `Đã ghép nối với ${data.partner.name} (${data.partner.gender})`;
+			formSection.style.display = "none";
+			chatBox.style.display = "flex";
+		}
+
+		if (data.event === "chat") {
+			appendMessage(`${data.message}`, "partner");
+		}
+	  
+		if (data.event === "partner_left") {
+			console.log("Người kia đã rời khỏi cuộc trò chuyện.");
+			alert("Người kia đã rời khỏi cuộc trò chuyện.");
+			resetUI();
+			return;
+		}
+	  
+    };
+
+    ws.onclose = () => {
+		resetUI();
+      resetUI();
+    };
+
+    ws.onerror = () => {
+      status.textContent = "Lỗi kết nối";
+    };
+  };
+
+  document.getElementById("sendBtn").onclick = () => {
+    const input = document.getElementById("msgInput");
+    const msg = input.value.trim();
+    if (msg && ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        event: "chat",
+        roomId: currentRoomId,
+        message: msg
+      }));
+      appendMessage(`${msg}`, "me");
+      input.value = "";
+    }
+  };
+
+  document.getElementById("msgInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("sendBtn").click();
+    }
+  });
+
+  document.getElementById("disconnectBtn").onclick = () => {
+    if (ws) {
+		ws.send(JSON.stringify({
+			event: "partner_left",
+			roomId: currentRoomId,
+			message: "Người kia đã thoát khỏi cuộc trò chuyện"
+      }));
+    }
+    resetUI();
+    status.textContent = "Đã thoát khỏi cuộc trò chuyện";
+	ws.close();
+  };
+
+  function appendMessage(text, cls) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    div.className = cls;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function resetUI() {
+    formSection.style.display = "flex";
+	statusConnect.textContent = ""
+    chatBox.style.display = "none";
+    messages.innerHTML = "";
+    document.getElementById("msgInput").value = "";
+    currentRoomId = null;
+  }
+</script>
+
+</body>
 </html>
