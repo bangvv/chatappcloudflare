@@ -96,16 +96,47 @@
     font-size: 14px;
     color: #333;
   }
+  
+.menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
 
-  #disconnectBtn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-  }
+#menuBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 120px;
+}
+
+.menu-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background-color: #f2f2f2;
+}
+
+  
 
   #messages {
 	flex: 1;
@@ -206,7 +237,14 @@
   <div id="chatBox">
     <div id="topBar">
       <div id="status">Đang kết nối...</div>
-      <button id="disconnectBtn">Thoát</button>
+      
+		<div class="menu-wrapper">
+			<button id="menuBtn">⋮</button>
+			<div id="menuDropdown" class="menu-dropdown">
+				<div class="menu-item" id="reportBtn">🚫 Báo cáo</div>
+				<div class="menu-item" id="disconnectBtn">🚪 Thoát</div>
+			</div>
+		</div>
     </div>
     <div id="messages"></div>
 		<div id="inputArea">
@@ -225,6 +263,34 @@
   const chatBox = document.getElementById("chatWrapper");
   const messages = document.getElementById("messages");
   const statusConnect = document.getElementById("statusConnect");
+  const menuBtn = document.getElementById("menuBtn");
+  const menuDropdown = document.getElementById("menuDropdown");
+  
+	menuBtn.onclick = () => {
+	  menuDropdown.style.display = menuDropdown.style.display === "block" ? "none" : "block";
+	};
+
+	// Bấm ngoài để đóng menu
+	window.addEventListener("click", function(e) {
+	  if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+		menuDropdown.style.display = "none";
+	  }
+	});
+
+	// Xử lý báo cáo
+	document.getElementById("reportBtn").onclick = () => {
+	  if (ws) {
+		ws.send(JSON.stringify({
+		  event: "report",
+		  roomId: currentRoomId,
+		  message: "Tôi muốn báo cáo người này"
+		}));
+	  }
+	  alert("Đã báo cáo người này và thoát cuộc trò chuyện.");
+	  resetUI();
+	  status.textContent = "Đã báo cáo và thoát";
+	  ws.close();
+	};
 
   document.getElementById("connectBtn").onclick = () => {
     const name = document.getElementById("name").value.trim();

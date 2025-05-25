@@ -22,9 +22,10 @@ export class MyDurableObject extends DurableObject {
 		const vitri = params.get("vitri");
 		const lookingFor = params.get("lookingFor");
 		const sessionId = crypto.randomUUID();
+		const ip = request.headers.get("CF-Connecting-IP");
 
 		const [client, server] = new WebSocketPair();
-		this.handleSession(server, { sessionId, name, age, gender, vitri, lookingFor });
+		this.handleSession(server, { sessionId, name, age, gender, vitri, lookingFor, ip});
 
 		return new Response(null, {
 		  status: 101,
@@ -78,6 +79,30 @@ export class MyDurableObject extends DurableObject {
 					}
 					}
 				}
+				else if (data.event === "report") {
+					// Xử lý báo cáo người đang chat với bạn
+					const partner = this.findPartner(user.sessionId);
+					console.log("User bị báo cáo IP:", partner?.ip);
+					console.log("Người gửi báo cáo IP:", user.ip);
+
+					if (partner && partner.ws.readyState === WebSocket.OPEN) {
+					  // Thông báo cho partner người này bị report và đóng kết nối partner
+						partner.ws.send(JSON.stringify({
+							event: "partner_reported",
+							message: "Người kia đã bị báo cáo và bị khóa khỏi cuộc trò chuyện."
+						}));
+						partner.ws.close(4000, "Reported user disconnected");
+					}
+					// Đóng kết nối người gửi báo cáo luôn (hoặc tùy bạn)
+					ws.close(4001, "You reported your partner");
+					
+					// Xóa user và partner khỏi queue và rooms
+					this.removeUser(user.sessionId);
+					if (partner) this.removeUser(partner.sessionId);
+
+					// TODO: Lưu lại sessionId user và partner để thống kê hoặc block nếu cần
+					console.log(`User ${user.sessionId} và partner đã bị xóa do báo cáo.`);
+				  }
 			});
 
 			ws.addEventListener("close", (event) => {
