@@ -55,6 +55,7 @@ export class MyDurableObject extends DurableObject {
 				} catch {
 				  return; // Bỏ qua nếu không phải JSON
 				}
+				
 				if (data.event === "chat" && data.roomId && data.message) {
 					for (const [roomId, room] of this.rooms.entries()) {
 					if (
@@ -195,6 +196,28 @@ export default {
 
   async fetch(request, env) {
     const url = new URL(request.url);
+	
+	// Serve sitemap.xml
+	if (url.pathname === "/sitemap.xml") {
+		const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+			<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+			  <url>
+				<loc>https://chattimbanquanhday.hngame.store/</loc>
+				<priority>1.0</priority>
+			  </url>
+			  <url>
+				<loc>https://chattimbanquanhday.hngame.store/chat</loc>
+				<priority>0.8</priority>
+			  </url>
+			</urlset>`;
+
+		return new Response(sitemap, {
+			headers: {
+				"Content-Type": "application/xml"
+			}
+		});
+	}
+	
     if (url.pathname === "/chat") {
       // Lấy param vitri hoặc param khác để xác định Durable Object nào dùng
       const vitri = url.searchParams.get("vitri");

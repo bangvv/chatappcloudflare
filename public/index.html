@@ -199,10 +199,72 @@
 	  max-width: 50%;
 	}
   }
+  
+/*----------------------------------------*/
+  /* Banner dùng chung */
+  .google-like-ad {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    height: 80px;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    font-family: sans-serif;
+    z-index: 9999;
+    animation: fadeIn 0.5s;
+  }
+  .google-like-ad-top { top: 10px; }
+  .google-like-ad-bottom { bottom: 10px; }
+  .ad-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+  .ad-content {
+    flex: 1;
+  }
+  .ad-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #000;
+  }
+  .ad-desc {
+    font-size: 12px;
+    color: #555;
+  }
+  .ad-action {
+    background: #4285F4;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .ad-close {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
   </style>
 </head>
 <body>
-
 <div id="formSection">
 	<h1>Tìm bạn chat</h1>
   <label>Tên: <input id="name"/></label>
@@ -409,6 +471,135 @@
     document.getElementById("msgInput").value = "";
     currentRoomId = null;
   }
+  
+  
+  
+  // =============================================================================================
+	function isFromApp() {
+		return navigator.userAgent.includes("MyChatAppWebView/1.0");
+	}
+
+	function isMobileBrowser() {
+		return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !isFromApp();
+	}
+	
+	function createGoogleAdTrochoitinhnhanh(position) {
+		const container = document.createElement('div');
+		container.className = `google-like-ad google-like-ad-${position}`;
+		container.style.position = 'fixed';
+
+		container.innerHTML = `
+		<img class="ad-img" src="https://hngame.store/image/trochoitinhnhanh.png" />
+		<div class="ad-content">
+		<div class="ad-title">Trò chơi tính nhanh - Game thử thách tài tính nhanh của bạn!</div>
+		<div class="ad-desc">Tham gia thử thách ngay hôm nay!</div>
+		</div>
+		<a class="ad-action" href="https://play.google.com/store/apps/details?id=com.hngame.trochoitinhnhanh" target="_blank">Tải ngay</a>
+		<div class="ad-close" onclick="this.parentElement.remove()">×</div>
+		`;
+		document.body.appendChild(container);
+	}
+	
+	function createGoogleAdChatTimbanananh(position) {
+		const container = document.createElement('div');
+		container.className = `google-like-ad google-like-ad-${position}`;
+		container.style.position = 'fixed';
+
+		container.innerHTML = `
+		<img class="ad-img" src="https://hngame.store/image/chattimban.png" />
+		<div class="ad-content">
+		<div class="ad-title">Chat Tìm Bạn Ẩn Danh Quanh Bạn - Trò chuyện riêng tư, làm quen kết bạn, kiếm người yêu!</div>
+		<div class="ad-desc">Tham gia vào những cuộc trò chuyện vui vẻ ngay hôm nay!</div>
+		</div>
+		<a class="ad-action" href="https://play.google.com/store/apps/details?id=com.hngame.timbanquanhday" target="_blank">Tải ngay</a>
+		<div class="ad-close" onclick="this.parentElement.remove()">×</div>
+		`;
+		document.body.appendChild(container);
+	}
+
+	// Bỏ điều kiện, luôn hiển thị 2 banner
+	if (!isFromApp()) {
+		createGoogleAdTrochoitinhnhanh("top");
+		createGoogleAdChatTimbanananh("bottom");
+	}
+	
+	function showSideBanners() {
+    if (!document.getElementById('side-banner-style')) {
+      const style = document.createElement('style');
+      style.id = 'side-banner-style';
+      style.innerHTML = `
+		.side-banner {
+			position: fixed;
+			width: 200px;
+			top: 50%;
+			transform: translateY(-50%);
+			cursor: pointer;
+			z-index: 9999;
+			box-shadow: 0 0 8px rgba(0,0,0,0.3);
+			border-radius: 8px;
+			overflow: hidden;
+			background-color: white;
+			padding-bottom: 10px;
+		}
+		.side-banner.left {
+			left: 0;
+			margin-left: 10px;
+		}
+		.side-banner.right {
+			right: 0;
+			margin-right: 10px;
+		}
+		.side-banner img {
+			width: 100%;
+			height: auto;
+			object-fit: cover;
+			display: block;
+		}
+		`;
+
+      document.head.appendChild(style);
+    }
+
+    const bannerLeft = document.createElement('div');
+    bannerLeft.className = 'side-banner left';
+    bannerLeft.onclick = () => {
+      window.open('https://play.google.com/store/apps/details?id=com.hngame.fishhero', '_blank');
+    };
+    const imgLeft = document.createElement('img');
+    imgLeft.src = 'https://hngame.store/image/caancacabavuong.png';
+    imgLeft.alt = 'Banner Trái';
+    bannerLeft.appendChild(imgLeft);
+	const label = document.createElement('div');
+	label.textContent = 'Cá Ăn Cá |	Tải: Miễn phí.';
+	label.style.textAlign = 'center';
+	label.style.fontSize = '16px';
+	label.style.fontWeight = 'bold';
+	label.style.marginTop = '8px';
+	label.style.color = '#000'; // màu chữ
+	bannerLeft.appendChild(label);
+
+    const bannerRight = document.createElement('div');
+    bannerRight.className = 'side-banner right';
+    bannerRight.onclick = () => {
+      window.open('https://play.google.com/store/apps/details?id=com.hngame.fishhero', '_blank');
+    };
+    const imgRight = document.createElement('img');
+    imgRight.src = 'https://hngame.store/image/caancacabavuong.png';
+    imgRight.alt = 'Banner Phải';
+    bannerRight.appendChild(imgRight);
+	bannerRight.appendChild(label);
+
+    document.body.appendChild(bannerRight);
+	}
+
+  // Gọi hàm hiển thị banner khi trang load xong
+	window.addEventListener('load', () => {
+		if (!isFromApp() && !isMobileBrowser()) {
+			showSideBanners();
+		}
+	});
+	
+  
 </script>
 
 </body>
