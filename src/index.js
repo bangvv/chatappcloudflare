@@ -206,10 +206,6 @@ export default {
 				<loc>https://chattimbanquanhday.hngame.store/</loc>
 				<priority>1.0</priority>
 			  </url>
-			  <url>
-				<loc>https://chattimbanquanhday.hngame.store/chat</loc>
-				<priority>0.8</priority>
-			  </url>
 			</urlset>`;
 
 		return new Response(sitemap, {
