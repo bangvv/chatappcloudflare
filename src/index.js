@@ -68,6 +68,7 @@ export class MyDurableObject extends DurableObject {
 						  ? room.user2
 						  : room.user1;
 					  if (otherUser.ws.readyState === WebSocket.OPEN) {
+						  console.log(` CHAT: ${data.message} `);
 						otherUser.ws.send(
 						  JSON.stringify({
 							event: "chat",
