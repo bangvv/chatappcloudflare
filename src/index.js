@@ -143,6 +143,7 @@ export class MyDurableObject extends DurableObject {
         const u1 = this.waitingQueue[i];
         const u2 = this.waitingQueue[j];
         if (this.canMatch(u1, u2)) {
+		  console.log(` . ========>Cearte Room for user ${u1.name} and ${u2.name}`);
           this.createRoom(u1, u2);
           // Loại bỏ 2 user đã ghép
           this.waitingQueue.splice(j, 1);
