@@ -216,6 +216,12 @@ export default {
 		});
 	}
 	
+	if (url.pathname === "/robots.txt") {
+		return new Response(`User-agent: *\nDisallow:\nSitemap: https://chattimbanquanhday.hngame.store/sitemap.xml`, {
+		  headers: { 'Content-Type': 'text/plain' }
+		})
+	}
+	
     if (url.pathname === "/chat") {
       // Lấy param vitri hoặc param khác để xác định Durable Object nào dùng
       const vitri = url.searchParams.get("vitri");
